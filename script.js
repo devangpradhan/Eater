@@ -53,9 +53,12 @@ function generatePixelScaleTexture(color1, color2) {
   return canvas;
 }
 
-// --- Helper: Randomly pick a shape type
+// --- Helper: Randomly pick a shape type (now with modern geometric shapes)
 function getRandomShape() {
-  const shapes = ['rect', 'circle', 'triangle', 'star'];
+  const shapes = [
+    'rect', 'circle', 'triangle', 'star',
+    'squircle', 'pill', 'hexagon', 'diamond', 'pentagon', 'octagon'
+  ];
   return shapes[Math.floor(Math.random() * shapes.length)];
 }
 
@@ -152,6 +155,9 @@ function drawSnake() {
 }
 
 // --- Draw Bets ---
+
+
+// --- Draw Bets (with modern geometric shapes) ---
 function drawBets() {
   betGfx.clear();
   bets.forEach((bet) => {
@@ -160,27 +166,26 @@ function drawBets() {
     const x = bet.col * BLOCK_SIZE;
     const y = bet.row * BLOCK_SIZE;
     const s = BLOCK_SIZE - 2;
+    const cx = x + s / 2;
+    const cy = y + s / 2;
+    const r = s / 2;
 
     switch (bet.shape) {
       case 'rect':
         betGfx.drawRect(x, y, s, s);
         break;
       case 'circle':
-        betGfx.drawCircle(x + s / 2, y + s / 2, s / 2);
+        betGfx.drawCircle(cx, cy, r);
         break;
       case 'triangle':
-        betGfx.moveTo(x + s / 2, y);
+        betGfx.moveTo(cx, y);
         betGfx.lineTo(x + s, y + s);
         betGfx.lineTo(x, y + s);
         betGfx.closePath();
         break;
       case 'star':
-        // Draw a simple 5-pointed star
-        const cx = x + s / 2, cy = y + s / 2, r = s / 2;
-        betGfx.moveTo(
-          cx + r * Math.cos(-Math.PI / 2),
-          cy + r * Math.sin(-Math.PI / 2)
-        );
+        // 5-pointed star
+        betGfx.moveTo(cx + r * Math.cos(-Math.PI / 2), cy + r * Math.sin(-Math.PI / 2));
         for (let i = 1; i <= 5; i++) {
           let angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
           let sx = cx + r * Math.cos(angle);
@@ -190,6 +195,45 @@ function drawBets() {
           sx = cx + (r * 0.5) * Math.cos(angle);
           sy = cy + (r * 0.5) * Math.sin(angle);
           betGfx.lineTo(sx, sy);
+        }
+        betGfx.closePath();
+        break;
+      case 'squircle':
+        betGfx.drawRoundedRect(x, y, s, s, s / 2.5);
+        break;
+      case 'pill':
+        betGfx.drawRoundedRect(x, y + s / 4, s, s / 2, s / 2.5);
+        break;
+      case 'hexagon':
+        betGfx.moveTo(cx + r * Math.cos(0), cy + r * Math.sin(0));
+        for (let i = 1; i <= 6; i++) {
+          const angle = (i * 2 * Math.PI) / 6;
+          betGfx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
+        }
+        betGfx.closePath();
+        break;
+      case 'diamond':
+        betGfx.moveTo(cx, y);
+        betGfx.lineTo(x + s, cy);
+        betGfx.lineTo(cx, y + s);
+        betGfx.lineTo(x, cy);
+        betGfx.closePath();
+        break;
+      case 'pentagon':
+        betGfx.moveTo(cx + r * Math.cos(-Math.PI / 2), cy + r * Math.sin(-Math.PI / 2));
+        for (let i = 1; i <= 5; i++) {
+          const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+          betGfx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
+        }
+        betGfx.closePath();
+        break;
+      case 'octagon':
+        for (let i = 0; i < 8; i++) {
+          const angle = Math.PI / 8 + (i * 2 * Math.PI) / 8;
+          const px = cx + r * Math.cos(angle) * 0.92;
+          const py = cy + r * Math.sin(angle) * 0.92;
+          if (i === 0) betGfx.moveTo(px, py);
+          else betGfx.lineTo(px, py);
         }
         betGfx.closePath();
         break;
