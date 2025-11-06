@@ -1,0 +1,59 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#game {
+  display: block;
+  margin: 0 auto;
+}
+
+#toggleBetMode {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  padding: 10px 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#betCountDisplay {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  padding: 10px 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+  user-select: none;
+  letter-spacing: 1px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#toggleBetMode:hover {
+  background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
+  transform: scale(1.05);
+}
+
+#toggleBetMode:active {
+  background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+  transform: scale(0.97);
+}
