@@ -13,7 +13,7 @@ This workspace contains two main game projects:
 ### Demo & Source
 - <a href="https://codepen.io/devangpradhan/full/RNrmMWE" target="_blank">Play Emoji Eater Game on CodePen</a>
 
-![Emoji Eater Screenshot](https://files.copilot.microsoft.com/screenshots/emoji-eater-demo.png)
+![Emoji Eater Screenshot](Emoj/emoji-eater-demo.png)
 
 
 ## 2. Shape Eater Game
@@ -26,7 +26,7 @@ This workspace contains two main game projects:
 ### Demo & Source
 - <a href="https://codepen.io/devangpradhan/full/OPMYvMe" target="_blank">Play Shape Eater Game on CodePen</a>
 
-![Shape Eater Screenshot](https://files.copilot.microsoft.com/screenshots/shape-eater-demo.png)
+![Shape Eater Screenshot](Shapes/shape-eater-demo.png)
 
 ## How to Play
 - Open the corresponding HTML file (`Eater.html`) in each project folder to start the game.
