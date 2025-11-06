@@ -53,27 +53,22 @@ function generatePixelScaleTexture(color1, color2) {
   return canvas;
 }
 
-// --- Helper: Randomly pick a shape type (now with modern geometric shapes)
-function getRandomShape() {
-  const shapes = [
-    'rect', 'circle', 'triangle', 'star',
-    'squircle', 'pill', 'hexagon', 'diamond', 'pentagon', 'octagon'
-  ];
-  return shapes[Math.floor(Math.random() * shapes.length)];
+// --- Food & Drink Emojis ---
+const FOOD_EMOJIS = [
+  '🍄','🍇','🍈','🍉','🍊','🍋','🍌','🍍','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐','🥝','🍅','🫒','🥥','🥑','🍆','🥔','🥕','🌽','🌶️','🫑','🥒','🥬','🥦','🧄','🧅','🥜','🫘','🌰','🫛','🍞','🥐','🥖','🫓','🥨','🥯','🥞','🧇','🧀','🍖','🍗','🥩','🥓','🍔','🍟','🍕','🌭','🥪','🌮','🌯','🫔','🥙','🧆','🥚','🍘','🍠','🍤','🍥','🥟','🦀','🦞','🦐','🦑','🦪','🍨','🍩','🍪','🎂','🍰','🧁','🥧'
+];
+
+// --- Helper: Randomly pick a Food & Drink emoji
+function getRandomFoodEmoji() {
+  return FOOD_EMOJIS[Math.floor(Math.random() * FOOD_EMOJIS.length)];
 }
 
-// --- Helper: Random color
-function getRandomColor() {
-  return '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
-}
-
-// --- Create a random bet object (color + shape)
+// --- Create a random bet object (Food emoji)
 function createRandomBet(col, row) {
   return {
     col,
     row,
-    color: getRandomColor(),
-    shape: getRandomShape()
+    emoji: getRandomFoodEmoji()
   };
 }
 
@@ -98,147 +93,55 @@ function drawGrid() {
 // --- Draw Snake ---
 function drawSnake() {
   snakeGfx.clear();
-  for (const [i, part] of snake.entries()) {
-    // Alternate colors for a pattern
-    const baseColor = i % 2 === 0 ? '#3f3f3f' : '#171a14';
-    const scaleColor = i % 2 === 0 ? '#f8f8f8' : '#c2c2c2';
-
-    // Draw shadow for 3D effect
-    snakeGfx.beginFill(0x000000, 0.18);
-    snakeGfx.drawRoundedRect(
-      part.col * BLOCK_SIZE + 4,
-      part.row * BLOCK_SIZE + 6,
-      BLOCK_SIZE - 8,
-      BLOCK_SIZE - 8,
-      BLOCK_SIZE / 1.8
-    );
-    snakeGfx.endFill();
-
-    // Draw main body with pixelated scale texture
-    const texture = PIXI.Texture.from(generatePixelScaleTexture(baseColor, scaleColor));
-    snakeGfx.beginTextureFill({
-      texture: texture,
-      matrix: new PIXI.Matrix().translate(part.col * BLOCK_SIZE, part.row * BLOCK_SIZE)
-    });
-    snakeGfx.drawRoundedRect(
-      part.col * BLOCK_SIZE,
-      part.row * BLOCK_SIZE,
-      BLOCK_SIZE - 2,
-      BLOCK_SIZE - 2,
-      BLOCK_SIZE / 5.5 // More rounded for curvy look
-    );
-    snakeGfx.endFill();
-
-    // Draw eyes on head
+  if (snakeGfx.children) {
+    snakeGfx.removeChildren();
+  }
+  for (let i = 0; i < snake.length; i++) {
+    const part = snake[i];
+    let emojiChar, fontSize, offsetX, offsetY;
     if (i === 0) {
-      const eyeW = 2, eyeH = 5;
-      const offsetX = BLOCK_SIZE / 4;
-      const offsetY = BLOCK_SIZE / 3;
-      // Left eye
-      snakeGfx.beginFill(0xffffff);
-      snakeGfx.drawEllipse(
-        part.col * BLOCK_SIZE + offsetX + 2,
-        part.row * BLOCK_SIZE + offsetY + 2,
-        eyeW, eyeH
-      );
-      snakeGfx.endFill();
-      // Right eye
-      snakeGfx.beginFill(0xffffff);
-      snakeGfx.drawEllipse(
-        part.col * BLOCK_SIZE + BLOCK_SIZE - offsetX - eyeW + 2,
-        part.row * BLOCK_SIZE + offsetY + 2,
-        eyeW, eyeH
-      );
-      snakeGfx.endFill();
+      // Head: 👾, largest and in front
+      emojiChar = '👾';
+      fontSize = BLOCK_SIZE * 1.7;
+      offsetX = BLOCK_SIZE * 0.35;
+      offsetY = BLOCK_SIZE * 0.35;
+    } else {
+      // Body: 👁‍🗨, even larger and overlapping
+      emojiChar = '👁‍🗨';
+      fontSize = BLOCK_SIZE * 1.45;
+      offsetX = BLOCK_SIZE * 0.28;
+      offsetY = BLOCK_SIZE * 0.28;
     }
+    const emoji = new PIXI.Text(emojiChar, {
+      fontSize: fontSize,
+      align: 'center',
+      fontWeight: 'bold',
+    });
+    // Center and overlap segments for a smooth tube effect
+    emoji.x = part.col * BLOCK_SIZE - offsetX;
+    emoji.y = part.row * BLOCK_SIZE - offsetY;
+    emoji.resolution = 2;
+    snakeGfx.addChild(emoji);
   }
 }
 
 // --- Draw Bets ---
 
-
 // --- Draw Bets (with modern geometric shapes) ---
 function drawBets() {
   betGfx.clear();
+  if (betGfx.children) {
+    betGfx.removeChildren();
+  }
   bets.forEach((bet) => {
-    betGfx.beginFill(PIXI.utils.string2hex(bet.color));
-
-    const x = bet.col * BLOCK_SIZE;
-    const y = bet.row * BLOCK_SIZE;
-    const s = BLOCK_SIZE - 2;
-    const cx = x + s / 2;
-    const cy = y + s / 2;
-    const r = s / 2;
-
-    switch (bet.shape) {
-      case 'rect':
-        betGfx.drawRect(x, y, s, s);
-        break;
-      case 'circle':
-        betGfx.drawCircle(cx, cy, r);
-        break;
-      case 'triangle':
-        betGfx.moveTo(cx, y);
-        betGfx.lineTo(x + s, y + s);
-        betGfx.lineTo(x, y + s);
-        betGfx.closePath();
-        break;
-      case 'star':
-        // 5-pointed star
-        betGfx.moveTo(cx + r * Math.cos(-Math.PI / 2), cy + r * Math.sin(-Math.PI / 2));
-        for (let i = 1; i <= 5; i++) {
-          let angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-          let sx = cx + r * Math.cos(angle);
-          let sy = cy + r * Math.sin(angle);
-          betGfx.lineTo(sx, sy);
-          angle += Math.PI / 5;
-          sx = cx + (r * 0.5) * Math.cos(angle);
-          sy = cy + (r * 0.5) * Math.sin(angle);
-          betGfx.lineTo(sx, sy);
-        }
-        betGfx.closePath();
-        break;
-      case 'squircle':
-        betGfx.drawRoundedRect(x, y, s, s, s / 2.5);
-        break;
-      case 'pill':
-        betGfx.drawRoundedRect(x, y + s / 4, s, s / 2, s / 2.5);
-        break;
-      case 'hexagon':
-        betGfx.moveTo(cx + r * Math.cos(0), cy + r * Math.sin(0));
-        for (let i = 1; i <= 6; i++) {
-          const angle = (i * 2 * Math.PI) / 6;
-          betGfx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
-        }
-        betGfx.closePath();
-        break;
-      case 'diamond':
-        betGfx.moveTo(cx, y);
-        betGfx.lineTo(x + s, cy);
-        betGfx.lineTo(cx, y + s);
-        betGfx.lineTo(x, cy);
-        betGfx.closePath();
-        break;
-      case 'pentagon':
-        betGfx.moveTo(cx + r * Math.cos(-Math.PI / 2), cy + r * Math.sin(-Math.PI / 2));
-        for (let i = 1; i <= 5; i++) {
-          const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-          betGfx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
-        }
-        betGfx.closePath();
-        break;
-      case 'octagon':
-        for (let i = 0; i < 8; i++) {
-          const angle = Math.PI / 8 + (i * 2 * Math.PI) / 8;
-          const px = cx + r * Math.cos(angle) * 0.92;
-          const py = cy + r * Math.sin(angle) * 0.92;
-          if (i === 0) betGfx.moveTo(px, py);
-          else betGfx.lineTo(px, py);
-        }
-        betGfx.closePath();
-        break;
-    }
-    betGfx.endFill();
+    const emoji = new PIXI.Text(bet.emoji, {
+      fontSize: BLOCK_SIZE * 1.1,
+      align: 'center',
+    });
+    emoji.x = bet.col * BLOCK_SIZE;
+    emoji.y = bet.row * BLOCK_SIZE;
+    emoji.resolution = 2;
+    betGfx.addChild(emoji);
   });
 }
 
